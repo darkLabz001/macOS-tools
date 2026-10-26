@@ -29,7 +29,6 @@ final class MapperApp: NSObject, NSApplicationDelegate, NSTableViewDataSource, N
     var helper: Process?
     var lastLogSize: UInt64 = 0
     var scanIsRunning = false
-    let vaultStatus = NSTextField(labelWithString: "Vault · connecting")
     let cyan = NSColor(calibratedRed: 0.2, green: 0.9, blue: 1, alpha: 1)
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -47,8 +46,6 @@ final class MapperApp: NSObject, NSApplicationDelegate, NSTableViewDataSource, N
         root.addArrangedSubview(title)
         let info = NSTextField(labelWithString: "Explicit targets • Manual start/stop • Saved scan history • Host and service comparisons")
         info.textColor = .secondaryLabelColor; root.addArrangedSubview(info)
-        vaultStatus.textColor = .secondaryLabelColor; root.addArrangedSubview(vaultStatus)
-        VaultRelay.start { [weak self] in self?.vaultStatus.stringValue = $0 }
         start = button("Start scan", #selector(startScan)); start.contentTintColor = cyan
         stop = button("Stop scan", #selector(stopScan)); stop.contentTintColor = .systemRed; stop.isEnabled = false
         root.addArrangedSubview(line([start, stop, status]))
@@ -219,9 +216,6 @@ final class MapperApp: NSObject, NSApplicationDelegate, NSTableViewDataSource, N
     func display(_ value: Snapshot) {
         snapshot = value; table.reloadData()
         details.string = "\(value.hosts.count) hosts recorded. Select a host to inspect ports and script output."
-        if let data = try? JSONEncoder().encode(value) {
-            VaultRelay.submit("mapper", data: data) { [weak self] in self?.vaultStatus.stringValue = $0 }
-        }
     }
     func refreshHistory() {
         saved = ((try? FileManager.default.contentsOfDirectory(at: home, includingPropertiesForKeys: nil)) ?? []).filter { FileManager.default.fileExists(atPath: $0.appendingPathComponent("snapshot.json").path) }.sorted { $0.lastPathComponent > $1.lastPathComponent }

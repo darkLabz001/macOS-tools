@@ -109,30 +109,5 @@ class ManualControlsTests(unittest.IsolatedAsyncioTestCase):
             self.assertIsNone(app.screen._controls.current)
 
 
-class VaultMetadataTests(unittest.TestCase):
-    def test_export_uses_metadata_only_and_does_not_start_radio(self):
-        ap = SimpleNamespace(bssid="02:11:22:33:44:55", ssid="Fixture", channel=6,
-                             encryption="WPA2", akm_suites=[2], pairwise_cipher="CCMP",
-                             wpa3=False, transition_mode=False, pmf_capable=True,
-                             pmf_required=False, wps=False, wps_locked=False,
-                             handshakes={}, wps_pin_psk="must-stay-local")
-        array = SimpleNamespace(get_access_points=Mock(return_value=[ap]), clients={},
-                                forged_macs=set(), start_hopping=Mock())
-        screen = SimpleNamespace(app=SimpleNamespace(array=array), _receive_vault_status=Mock())
-        with patch("wifit3.ui.screens.scanner.publish_wifi") as publish:
-            ScannerView._publish_vault_findings(screen)
-        fields = publish.call_args.args[0][0]
-        self.assertEqual(fields["ssid"], "Fixture")
-        self.assertNotIn("wps_pin_psk", fields)
-        self.assertEqual(fields["client_count"], 0)
-        array.start_hopping.assert_not_called()
-
-    def test_idle_retry_does_not_require_adapter(self):
-        screen = SimpleNamespace(app=SimpleNamespace(array=None), _receive_vault_status=Mock())
-        with patch("wifit3.ui.screens.scanner.publish_wifi") as publish:
-            ScannerView._publish_vault_findings(screen)
-        publish.assert_called_once_with([], on_status=screen._receive_vault_status)
-
-
 if __name__ == "__main__":
     unittest.main()

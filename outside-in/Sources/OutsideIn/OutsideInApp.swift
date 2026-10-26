@@ -129,9 +129,7 @@ struct WorkspaceView: View {
             Spacer()
             VStack(alignment: .leading, spacing: 8) {
                 Label("LOCAL WORKSPACE", systemImage: "internaldrive").font(.system(size: 10, design: .monospaced)).foregroundStyle(Theme.mint)
-                Text("Cases are saved locally. Optional Vault sync requires your own configuration. DNS queries go to Cloudflare.").font(.system(size: 11)).foregroundStyle(Theme.muted).fixedSize(horizontal: false, vertical: true)
-                Text(store.vaultStatus).font(.system(size: 10)).foregroundStyle(Theme.muted).fixedSize(horizontal: false, vertical: true)
-                Button(store.isSyncing ? "Syncing…" : "Sync Vault now") { Task { await store.syncVault() } }.disabled(store.isSyncing).font(.system(size: 11))
+                Text("Cases are saved locally. DNS queries go to Cloudflare.").font(.system(size: 11)).foregroundStyle(Theme.muted).fixedSize(horizontal: false, vertical: true)
             }.padding(.bottom, 22)
         }.padding(.horizontal, 17).background(Theme.panel)
     }
@@ -358,7 +356,7 @@ struct NewCaseView: View {
             Text("Start with a domain or IP address. Domain cases include subdomains; IP cases focus on one address.").foregroundStyle(Theme.muted)
             TextField("Case name", text: $name).textFieldStyle(.roundedBorder)
             TextField("Domain or IP · example.com / 1.1.1.1", text: $domain).textFieldStyle(.roundedBorder)
-            Text("Collection queries Cloudflare’s public DNS resolver. Results and source responses are saved locally and sent to your configured OSINT Vault.").font(.system(size: 11)).foregroundStyle(Theme.muted)
+            Text("Collection queries Cloudflare’s public DNS resolver. Results and source responses are saved locally.").font(.system(size: 11)).foregroundStyle(Theme.muted)
             HStack { Button("Cancel") { dismiss() }.keyboardShortcut(.cancelAction); Spacer(); Button("Create investigation") { store.create(name: name, scope: domain); dismiss() }.buttonStyle(.borderedProminent).disabled(TargetInput.normalize(domain) == nil).keyboardShortcut(.defaultAction) }
         }.padding(30).frame(width: 470).background(Theme.background).tint(Theme.mint)
     }

@@ -10,11 +10,6 @@ import AppKit
     @Published var scanCompleted = 0
     @Published var scanTotal = 0
     @Published var notice: String?
-    @Published var vaultStatus = "Vault: starting"
-    @Published var isSyncing = false
-    private var outbox = VaultOutbox()
-    private var outboxFailed = false
-    private let outboxURL = VaultConfiguration.directory.appendingPathComponent("vault-outbox.json")
     private var loadFailed = false
     let fileURL: URL
 
@@ -34,17 +29,6 @@ import AppKit
             notice = "Could not read saved cases. Existing data will not be overwritten. \(error.localizedDescription)"
         }
         selection = cases.first?.id
-        do {
-            if FileManager.default.fileExists(atPath: outboxURL.path) {
-                outbox = try JSONDecoder().decode(VaultOutbox.self, from: Data(contentsOf: outboxURL))
-            }
-        } catch { outboxFailed = true; vaultStatus = "Vault: cannot read retry queue" }
-        Task { [weak self] in
-            while !Task.isCancelled {
-                await self?.syncVault()
-                try? await Task.sleep(for: .seconds(60))
-            }
-        }
     }
 
     var current: Investigation? { cases.first { $0.id == selection } }
@@ -66,7 +50,6 @@ import AppKit
         selection = item.id
         selectedAsset = nil
         save()
-        Task { await syncVault() }
     }
 
     func addEvidence(value: String, kind: AssetKind, from: UUID, relation: String, source: String, excerpt: String, status: EvidenceStatus) {
@@ -75,7 +58,6 @@ import AppKit
         cases[index].evidence.append(Evidence(from: from, to: target, relationship: relation, source: source, excerpt: excerpt, status: status))
         selectedAsset = target
         save()
-        Task { await syncVault() }
     }
 
     func collect(domain: String) async {
@@ -90,34 +72,8 @@ import AppKit
         guard let index = cases.firstIndex(where: { $0.id == caseID }) else { return }
         DNSCollector.apply(results, domain: domain, to: &cases[index])
         save()
-        await syncVault()
         let failures = results.filter { $0.error != nil || $0.response?.Status != 0 }.count
-        notice = (failures == 0 ? "DNS collection complete. Evidence and raw responses saved." : "Collection finished with \(failures) unsuccessful queries. See the collection log.") + "\n\(vaultStatus)"
-    }
-
-    func syncVault() async {
-        guard !isSyncing, !outboxFailed, !loadFailed else { return }
-        isSyncing = true
-        defer { isSyncing = false }
-        do {
-            try outbox.enqueue(cases)
-            try persistOutbox()
-            let configuration = try VaultConfiguration.load()
-            if outbox.pending.isEmpty {
-                vaultStatus = "Vault: up to date"
-                return
-            }
-            let entries = outbox.pending.sorted { $0.key < $1.key }
-            for (identity, entry) in entries {
-                vaultStatus = "Vault: sending · \(outbox.pending.count) pending"
-                try await VaultTransport.send(entry, configuration: configuration)
-                outbox.acknowledge(identity, fingerprint: entry.fingerprint)
-                try persistOutbox()
-            }
-            vaultStatus = "Vault: synced · \(outbox.delivered.count) records"
-        } catch {
-            vaultStatus = "Vault: \(outbox.pending.count) pending · \(error.localizedDescription)"
-        }
+        notice = (failures == 0 ? "DNS collection complete. Evidence and raw responses saved." : "Collection finished with \(failures) unsuccessful queries. See the collection log.")
     }
 
     private enum ScanOutput { case dns([DNSResult]), other(ScannerResult) }
@@ -162,14 +118,6 @@ import AppKit
             }
         }
         scanStatus = "Finished \(target) · \(scanTotal - failures)/\(scanTotal) modules succeeded. See Collection log for results."
-        await syncVault()
-    }
-
-    private func persistOutbox() throws {
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.sortedKeys]
-        try encoder.encode(outbox).write(to: outboxURL, options: .atomic)
-        try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: outboxURL.path)
     }
 
     func export(json: Bool) {

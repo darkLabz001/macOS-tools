@@ -15,19 +15,14 @@ func XCTUnwrap<T>(_ value: T?) throws -> T { guard let value else { throw NSErro
         try tests.testNullMXDoesNotCreateEmptyAsset()
         tests.testFailedQueryRemainsAnInvestigationGap()
         try tests.testCaseRoundTripAndReport()
-        try tests.testVaultPayload()
-        try tests.testVaultRetryPersistenceAndDeduplication()
-        try tests.testChangedEvidenceIsResent()
-        try tests.testDemoNeverLeavesMac()
         tests.testIPTargetsAndReverseNames()
         tests.testScannerScopeAndModules()
         try tests.testCertificateNamesAndScope()
         try tests.testCertificateGraphLimit()
         try tests.testRDAPParsing()
         tests.testScannerResultsAndFailureIsolation()
-        try tests.testScannerVaultPayload()
         try tests.testCertificateFallbackParsing()
-        print("PASS: 18 core tests, including domain/IP validation, scanner parsing, certificate fallback, provenance, failures, Vault delivery state, and demo exclusion")
+        print("PASS: 13 core tests, including domain/IP validation, scanner parsing, certificate fallback, provenance, failures and local evidence")
     }
     func testScopeRejectsLookalikes() {
         let item = Investigation(name: "Test", scope: "example.com")
@@ -85,60 +80,6 @@ func XCTUnwrap<T>(_ value: T?) throws -> T { guard let value else { throw NSErro
         XCTAssertTrue(report.contains("TRAINING CASE"))
         XCTAssertTrue(report.contains("Hypothesis"))
         XCTAssertTrue(report.contains("https://northstar.example/training-fixture"))
-    }
-
-    func testVaultPayload() throws {
-        var item = Investigation.demo()
-        item.isDemo = false
-        let records = VaultRecord.records(for: item)
-        let staging = try XCTUnwrap(records.first { $0.value == "staging.northstar.example" })
-        XCTAssertEqual(staging.source, "outside-in")
-        XCTAssertEqual(staging.type, "subdomain")
-        XCTAssertEqual(staging.metadata.resolves_to, ["192.0.2.24"])
-        XCTAssertTrue(staging.metadata.evidence.contains { $0.status == "Hypothesis" })
-        let object = try XCTUnwrap(JSONSerialization.jsonObject(with: staging.encoded()) as? [String: Any])
-        XCTAssertEqual(object["source"] as? String, "outside-in")
-        XCTAssertTrue(object["metadata"] != nil)
-        let encoded = try staging.encoded()
-        XCTAssertFalse(String(data: encoded, encoding: .utf8)!.contains("apiKey"))
-    }
-
-    func testVaultRetryPersistenceAndDeduplication() throws {
-        var item = Investigation(name: "Test", scope: "example.com")
-        _ = item.addAsset("example.com", kind: .domain)
-        var queue = VaultOutbox()
-        try queue.enqueue([item])
-        let record = try XCTUnwrap(queue.pending.first)
-        // A failed request does not acknowledge: round-trip the retry queue.
-        var restored = try JSONDecoder().decode(VaultOutbox.self, from: JSONEncoder().encode(queue))
-        XCTAssertEqual(restored.pending.count, 1)
-        restored.acknowledge(record.key, fingerprint: record.value.fingerprint)
-        try restored.enqueue([item])
-        XCTAssertTrue(restored.pending.isEmpty)
-        XCTAssertEqual(restored.delivered.count, 1)
-    }
-
-    func testChangedEvidenceIsResent() throws {
-        var item = Investigation(name: "Test", scope: "example.com")
-        let root = item.addAsset("example.com", kind: .domain)
-        var queue = VaultOutbox()
-        try queue.enqueue([item])
-        let first = try XCTUnwrap(queue.pending.first)
-        queue.acknowledge(first.key, fingerprint: first.value.fingerprint)
-        item.evidence.append(Evidence(from: root, to: root, relationship: "TXT record", source: "https://example.com", excerpt: "v=spf1 -all", status: .observed))
-        try queue.enqueue([item])
-        XCTAssertEqual(queue.pending.count, 1)
-        XCTAssertFalse(queue.pending[first.key]?.fingerprint == first.value.fingerprint)
-        // An old acknowledgement must not erase a newer queued version.
-        queue.acknowledge(first.key, fingerprint: first.value.fingerprint)
-        XCTAssertEqual(queue.pending.count, 1)
-    }
-
-    func testDemoNeverLeavesMac() throws {
-        var queue = VaultOutbox()
-        try queue.enqueue([.demo()])
-        XCTAssertTrue(queue.pending.isEmpty)
-        XCTAssertTrue(VaultRecord.records(for: .demo()).isEmpty)
     }
 
     func testIPTargetsAndReverseNames() {
@@ -206,16 +147,6 @@ func XCTUnwrap<T>(_ value: T?) throws -> T { guard let value else { throw NSErro
         XCTAssertTrue(item.runs.last!.outcome.hasPrefix("Failed"))
         XCTAssertEqual(item.runs.last!.rawResponse, "failure body")
         XCTAssertTrue(item.leads.contains { $0.detail.contains("Registration") })
-    }
-
-    func testScannerVaultPayload() throws {
-        var item = Investigation(name: "IP", scope: "192.0.2.1")
-        ReconScanner.apply(.init(module: .ports, target: "192.0.2.1", source: "tcp://192.0.2.1", raw: "port observation", summary: "443/tcp open"), to: &item)
-        let record = try XCTUnwrap(VaultRecord.records(for: item).first)
-        XCTAssertEqual(record.type, "ip")
-        XCTAssertEqual(record.metadata.collections.first?.recordType, "TCP")
-        XCTAssertEqual(record.metadata.collections.first?.rawResponse, "port observation")
-        XCTAssertEqual(record.metadata.evidence.first?.source_url, "tcp://192.0.2.1")
     }
 
     func testCertificateFallbackParsing() throws {

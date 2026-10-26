@@ -63,7 +63,7 @@ struct ScannerPanel: View {
                 if store.scanTotal > 0 { ProgressView(value: Double(store.scanCompleted), total: Double(store.scanTotal)).tint(Theme.mint) }
                 Text(store.scanStatus).font(.system(size: 12)).foregroundStyle(Theme.muted).textSelection(.enabled)
                 Divider()
-                Text("DNS / PTR queries go to Cloudflare. Registration queries go through RDAP.org to the registry. Certificate searches go to crt.sh, or Cert Spotter if unavailable. HTTPS and TCP checks contact the selected target directly. New evidence syncs to your OSINT Vault.").font(.system(size: 11)).foregroundStyle(Theme.muted).fixedSize(horizontal: false, vertical: true)
+                Text("DNS / PTR queries go to Cloudflare. Registration queries go through RDAP.org to the registry. Certificate searches go to crt.sh, or Cert Spotter if unavailable. HTTPS and TCP checks contact the selected target directly.").font(.system(size: 11)).foregroundStyle(Theme.muted).fixedSize(horizontal: false, vertical: true)
                 if item.isDemo { Text("Create a real domain or IP case to run collectors. This training case stays synthetic.").font(.system(size: 12)).foregroundStyle(.orange) }
             }.padding(26)
         }

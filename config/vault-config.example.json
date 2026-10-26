@@ -1,5 +1,0 @@
-{
-  "enabled": false,
-  "endpoint": "https://vault.example/api/v1/ingest",
-  "apiKey": ""
-}

@@ -6,4 +6,3 @@ Build from the repository root with `zsh scripts/build-native.sh`, then open `di
 
 Saved scans go to `~/Library/Application Support/macOS-tools/NetworkMapper/scans/`. The clean source tree contains no scans or target history. Intrusive Nmap options require explicit selection and manual start.
 
-Optional Vault export sends structured host, state, OS, port and service/version observations after scan completion, saved-snapshot loading or XML import. Raw script output remains local. Sync uses your own opt-in configuration, not a bundled server or key. See `../osint-vault-relay/README.md`.

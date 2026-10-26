@@ -3,8 +3,8 @@ set -euo pipefail
 cd "${0:A:h:h}"
 mkdir -p .build/native/packet-vault dist
 cp packet-vault/PacketVault.swift .build/native/packet-vault/main.swift
-swiftc osint-vault-relay/VaultRelay.swift network-mapper/Core.swift network-mapper/main.swift -o .build/native/NetworkMapper -framework AppKit -framework UniformTypeIdentifiers
-swiftc osint-vault-relay/VaultRelay.swift .build/native/packet-vault/main.swift -o .build/native/PacketVault -framework AppKit -framework UniformTypeIdentifiers
+swiftc network-mapper/Core.swift network-mapper/main.swift -o .build/native/NetworkMapper -framework AppKit -framework UniformTypeIdentifiers
+swiftc .build/native/packet-vault/main.swift -o .build/native/PacketVault -framework AppKit -framework UniformTypeIdentifiers
 for name in "Network Mapper" "Packet Vault"; do
     if [[ "$name" == "Network Mapper" ]]; then
         executable=NetworkMapper
@@ -18,7 +18,6 @@ for name in "Network Mapper" "Packet Vault"; do
     app="$PWD/dist/$name.app"
     mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
     cp ".build/native/$executable" "$app/Contents/MacOS/$executable"
-    cp osint-vault-relay/vault_relay.py "$app/Contents/Resources/vault_relay.py"
     python3 scripts/make-icon.py "$icon" "$app/Contents/Resources/$executable.icns"
     python3 - "$app" "$name" "$executable" "$identifier" <<'PY'
 import plistlib,sys

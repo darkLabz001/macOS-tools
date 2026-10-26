@@ -111,7 +111,6 @@ final class PacketVault: NSObject, NSApplicationDelegate {
     let frame = NSTextField(string: "1")
     let targetPicker = NSPopUpButton()
     var discoveredTargets: [WiFiTarget] = []
-    let vaultStatus = NSTextField(labelWithString: "Vault · connecting")
     let status = NSTextField(labelWithString: "IDLE · Open a capture to begin")
     let output = NSTextView()
     var controls: [NSControl] = []
@@ -152,10 +151,7 @@ final class PacketVault: NSObject, NSApplicationDelegate {
         let brand = NSStackView(views: [iconView, title])
         brand.spacing = 12
         root.addArrangedSubview(brand)
-        vaultStatus.textColor = .secondaryLabelColor
-        root.addArrangedSubview(vaultStatus)
-        VaultRelay.start { [weak self] in self?.vaultStatus.stringValue = $0 }
-        let subtitle = NSTextField(wrappingLabelWithString: "Inspect captures. Check WPA/WPA2-Personal passwords with your wordlist. Analysis runs locally. Structured findings sync to your OSINT Vault.")
+        let subtitle = NSTextField(wrappingLabelWithString: "Inspect captures. Check WPA/WPA2-Personal passwords with your wordlist. Analysis runs locally.")
         subtitle.textColor = .secondaryLabelColor
         root.addArrangedSubview(subtitle)
         capture.placeholderString = "Choose a .pcap, .pcapng, or .cap file"
@@ -212,7 +208,7 @@ final class PacketVault: NSObject, NSApplicationDelegate {
         note.textColor = .secondaryLabelColor
         root.addArrangedSubview(note)
         controls += [capture, wordlist, target, filter, frame, targetPicker]
-        append("READY\n\n1. Open a capture.\n2. Click Find Wi-Fi targets, then choose an AP from the list.\n3. Review its handshake-candidate status and choose a wordlist.\n4. Click Start wordlist check; Stop current job cancels it.\n\nPacket list, Protocol summary, and Packet details are available separately.\nNo live capture or password checking starts automatically.\nStructured metadata syncs to your OSINT Vault.\nPacket list and protocol summary inspect the first 10,000 input frames.\nTarget inventory and packet details read the full capture.\nPasswords are shown in this window only; no recovered-key file is created.\n")
+        append("READY\n\n1. Open a capture.\n2. Click Find Wi-Fi targets, then choose an AP from the list.\n3. Review its handshake-candidate status and choose a wordlist.\n4. Click Start wordlist check; Stop current job cancels it.\n\nPacket list, Protocol summary, and Packet details are available separately.\nNo live capture or password checking starts automatically.\nPacket list and protocol summary inspect the first 10,000 input frames.\nTarget inventory and packet details read the full capture.\nPasswords are shown in this window only; no recovered-key file is created.\n")
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
     }
@@ -318,7 +314,6 @@ final class PacketVault: NSObject, NSApplicationDelegate {
         cancelled = false
         let selectedFilter = filter.stringValue
         run(Backend.tshark, Backend.preview(path, filter: selectedFilter), label: "Packet list · first 10,000 input frames", done: { code in
-            if code == 0 && !self.cancelled { self.collectVaultEndpoints(path, filter: selectedFilter) }
             self.cleanup()
         })
     }
@@ -330,10 +325,6 @@ final class PacketVault: NSObject, NSApplicationDelegate {
             inventory.finish()
             guard code == 0, !self.cancelled else { return }
             self.discoveredTargets = inventory.sorted
-            let targets = inventory.sorted.map { ["bssid": $0.bssid, "ssid": $0.ssid, "handshakeCandidate": $0.candidate, "readiness": $0.readiness] as [String: Any] }
-            if let data = try? JSONSerialization.data(withJSONObject: ["capture": URL(fileURLWithPath: path).lastPathComponent, "targets": targets]) {
-                VaultRelay.submit("packet-wifi", data: data) { [weak self] in self?.vaultStatus.stringValue = $0 }
-            }
             self.targetPicker.removeAllItems()
             for ap in self.discoveredTargets {
                 self.targetPicker.addItem(withTitle: "\(ap.ssid) · \(ap.bssid) · \(ap.readiness)")
@@ -356,7 +347,6 @@ final class PacketVault: NSObject, NSApplicationDelegate {
         guard let path = capturePath() else { return }
         cancelled = false
         run(Backend.tshark, ["-n", "-r", path, "-c", "10000", "-q", "-z", "io,phs"], label: "Protocol summary · first 10,000 input frames", done: { code in
-            if code == 0 && !self.cancelled { self.collectVaultEndpoints(path, filter: "") }
             self.cleanup()
         })
     }
@@ -366,26 +356,6 @@ final class PacketVault: NSObject, NSApplicationDelegate {
         cancelled = false
         run(Backend.tshark, ["-n", "-r", path, "-Y", "frame.number == \(number)", "-V", "-x"], label: "Packet details · frame \(number)")
     }
-    func collectVaultEndpoints(_ path: String, filter: String) {
-        DispatchQueue.global(qos: .utility).async { [self] in
-            let process = Process(), pipe = Pipe()
-            process.executableURL = URL(fileURLWithPath: Backend.tshark)
-            var args = ["-n", "-r", path, "-c", "10000", "-T", "fields", "-E", "occurrence=f", "-E", "separator=/t"]
-            if !filter.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { args += ["-Y", filter] }
-            for field in ["ip.src", "ip.dst", "ipv6.src", "ipv6.dst", "tcp.srcport", "tcp.dstport", "udp.srcport", "udp.dstport", "_ws.col.Protocol"] { args += ["-e", field] }
-            process.arguments = args; process.standardOutput = pipe
-            process.standardError = FileHandle.nullDevice; process.standardInput = FileHandle.nullDevice
-            do {
-                try process.run()
-                let rows = String(decoding: pipe.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
-                process.waitUntilExit()
-                guard process.terminationStatus == 0 else { return }
-                let data = try JSONSerialization.data(withJSONObject: ["capture": URL(fileURLWithPath: path).lastPathComponent, "rows": rows])
-                VaultRelay.submit("packet-endpoints", data: data) { [weak self] in self?.vaultStatus.stringValue = $0 }
-            } catch { DispatchQueue.main.async { self.vaultStatus.stringValue = "Vault · endpoint extraction failed; capture remains local" } }
-        }
-    }
-
     @objc func crack() {
         guard let path = capturePath() else { return }
         let words = (wordlist.stringValue as NSString).expandingTildeInPath

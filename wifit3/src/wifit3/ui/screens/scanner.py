@@ -3,7 +3,6 @@ import time
 from pathlib import Path
 from typing import TYPE_CHECKING, Dict, List, Optional
 
-from vault_relay import publish_wifi
 
 from textual.app import ComposeResult, RenderResult
 from textual.binding import Binding
@@ -225,8 +224,6 @@ class ScannerView(Screen):
         array = self.app.array
 
         log.write(treelog.header("Scanner initialized"))
-        self._vault_sync_timer = self.set_interval(10.0, self._publish_vault_findings)
-        log.write("OSINT Vault sync enabled for access-point metadata.")
         rows: List[str] = []
         summary = self.app.vault.summary()
         if summary:
@@ -246,31 +243,6 @@ class ScannerView(Screen):
             self._pbc_timer = self.set_interval(1.0, self._poll_pbc)
             self._log_pbc_status()  # Auto-invade is ON by default
             self._log_auto_crack_status_when_changed()
-
-    def _publish_vault_findings(self) -> None:
-        array = self.app.array
-        if not array:
-            publish_wifi([], on_status=self._receive_vault_status)
-            return
-        access_points = []
-        for ap in array.get_access_points(include_eviltwin=False):
-            counts = sum(1 for client in array.clients.values() if client.bssid == ap.bssid and client.mac not in array.forged_macs)
-            keys = ("bssid", "ssid", "channel", "encryption", "akm_suites", "pairwise_cipher", "wpa3", "transition_mode", "pmf_capable", "pmf_required", "wps", "wps_locked")
-            fields = {key: getattr(ap, key, None) for key in keys}
-            fields.update(client_count=counts, handshake_count=len(ap.handshakes))
-            access_points.append(fields)
-        publish_wifi(access_points, on_status=self._receive_vault_status)
-
-    def _receive_vault_status(self, result) -> None:
-        self.app.call_from_thread(self._show_vault_status, result)
-
-    def _show_vault_status(self, result) -> None:
-        text = f"Vault · {result['pending']} pending"
-        if result.get("error"):
-            text += f" · {result['error']}"
-        if text != getattr(self, "_last_vault_status", None):
-            self._last_vault_status = text
-            self._write_log(escape(text))
 
     async def on_screen_resume(self) -> None:
         # Restart channel hopper

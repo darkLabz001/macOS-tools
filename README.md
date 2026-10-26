@@ -31,14 +31,6 @@ python3 scripts/fetch-firmware.py
 zsh wifit3/launch.command
 ```
 
-## Optional server sync
-
-Server sync is disabled unless you explicitly configure it. This repository contains no server address or usable API key. An inert template is in [config/vault-config.example.json](config/vault-config.example.json).
-
-To opt in, create `~/Library/Application Support/macOS-tools/vault-config.json` outside the checkout, set your own HTTPS ingest endpoint and API key, and set `enabled` to `true`. Restrict its permissions to your account. See [the relay documentation](osint-vault-relay/README.md).
-
-Runtime data is kept under `~/Library/Application Support/macOS-tools/` or Wifit3's platform-specific user data directory. Existing installations' configuration, captures, histories and credentials are not included or migrated.
-
 ## Privacy of this source distribution
 
 This is a new source tree with no imported Git history. It excludes API credentials, environment files, local server details, account information, real scan/capture results, recovered passwords, wordlists, logs, databases, caches, installed application bundles and Finder metadata backups. Examples use reserved documentation names and addresses. Tests generate their own synthetic data locally.
