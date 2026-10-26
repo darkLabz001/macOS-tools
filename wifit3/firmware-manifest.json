@@ -1,0 +1,150 @@
+[
+  {
+    "path": "src/wifit3/chips/ar9271_v2/assets/htc_9271-1.4.0.fw",
+    "sha256": "f6bc57e560d4f476b3e0be9d4ebfef4770cd735e2facc435c8675c9a28444412"
+  },
+  {
+    "path": "src/wifit3/chips/mt7601u/assets/mt7601u.bin",
+    "sha256": "4511b1d840e22aea2bf5fdca419c91c0d94cbfb291b9ac4f8be6d9100d1a7046"
+  },
+  {
+    "path": "src/wifit3/chips/mt76x0u/assets/mt7610e_linux-firmware.bin",
+    "sha256": "538d08c08f8fb5aa05cacf34e49aeb307e8b2dc094407fc655fbf3580c893953"
+  },
+  {
+    "path": "src/wifit3/chips/mt76x0u/assets/mt7610u_linux-firmware.bin",
+    "sha256": "5a4268e9021bb587426ba624b425f1e660bfc82cd63b36ad3ce6fb9ce6751760"
+  },
+  {
+    "path": "src/wifit3/chips/mt76x0u/assets/mt7610u_pcap_body.bin",
+    "sha256": "f868609257c9618048ace3ea6db474cf53f9ce8b535c7c589d6d7ac9b9bcc4b4"
+  },
+  {
+    "path": "src/wifit3/chips/mt76x2u/assets/mt7662_dlm.bin",
+    "sha256": "cc6d636a40b87afe1698f2086c82e42f97a3530a2b1fd39a080c1ce9d25afe13"
+  },
+  {
+    "path": "src/wifit3/chips/mt76x2u/assets/mt7662_ilm.bin",
+    "sha256": "bca871d980effadc792582adb7418c879d82d0ba932c076fbdc0ba03f3796e86"
+  },
+  {
+    "path": "src/wifit3/chips/mt76x2u/assets/mt7662_rom_patch_body.bin",
+    "sha256": "f126545f99310c84c8b480917763e9a3e221d4dbef4a09e89a1d032416afc7f1"
+  },
+  {
+    "path": "src/wifit3/chips/mt7921au/assets/WIFI_MT7961_patch_mcu_1_2_hdr.bin",
+    "sha256": "1cf118a88b131202cceeb480441df91e6dad6dc6c9105d636cce7180bbf9ce2e"
+  },
+  {
+    "path": "src/wifit3/chips/mt7921au/assets/WIFI_RAM_CODE_MT7961_1.bin",
+    "sha256": "b42237d20b1375a5160d9f220ea347231b06cba744e19410a8f6ce2039d42c6b"
+  },
+  {
+    "path": "src/wifit3/chips/mt7925au/assets/WIFI_MT7925_PATCH_MCU_1_1_hdr.bin",
+    "sha256": "8b68c73d375cff6dc21a2dd2f29d6f3633e8a2b0875255c9158660fad3abeeb3"
+  },
+  {
+    "path": "src/wifit3/chips/mt7925au/assets/WIFI_RAM_CODE_MT7925_1_1.bin",
+    "sha256": "f156ca1008bc1f37c110e3028450819f3e6f5226d4c57a36582dc95c5a21451d"
+  },
+  {
+    "path": "src/wifit3/chips/rt2800usb/assets/rt5572.bin",
+    "sha256": "b94fcb60065735d18709096cbe0e5345833fc15832e950669e2c9a2d838ae1b9"
+  },
+  {
+    "path": "src/wifit3/chips/rt3070/assets/rt3070_fw.bin",
+    "sha256": "83e2be48d7dc727e6657db42e686389048106de5ecc6a1a214d2e44bcf112645"
+  },
+  {
+    "path": "src/wifit3/chips/rt3070/assets/rt3072_fw.bin",
+    "sha256": "b94fcb60065735d18709096cbe0e5345833fc15832e950669e2c9a2d838ae1b9"
+  },
+  {
+    "path": "src/wifit3/chips/rt5370/assets/rt5370_fw.bin",
+    "sha256": "b94fcb60065735d18709096cbe0e5345833fc15832e950669e2c9a2d838ae1b9"
+  },
+  {
+    "path": "src/wifit3/chips/rt5372/assets/rt5372_fw.bin",
+    "sha256": "b94fcb60065735d18709096cbe0e5345833fc15832e950669e2c9a2d838ae1b9"
+  },
+  {
+    "path": "src/wifit3/chips/rt5572/assets/rt5572.bin",
+    "sha256": "b94fcb60065735d18709096cbe0e5345833fc15832e950669e2c9a2d838ae1b9"
+  },
+  {
+    "path": "src/wifit3/chips/rtl8188eus/assets/rtl8188eufw.bin",
+    "sha256": "2ff74315287529dec2e50eb57d6e0c97d2116f28ae166773ccdf93b6360000c4"
+  },
+  {
+    "path": "src/wifit3/chips/rtl8188eus_dkms/assets/rtl8188eufw.bin",
+    "sha256": "2ff74315287529dec2e50eb57d6e0c97d2116f28ae166773ccdf93b6360000c4"
+  },
+  {
+    "path": "src/wifit3/chips/rtl8192fu/assets/rtl8192fufw.bin",
+    "sha256": "3001f8b50176ede76d0cde20c7c7ff84ebe12331049e65e1a1a768b1d45b74de"
+  },
+  {
+    "path": "src/wifit3/chips/rtl8812au/assets/rtw8812a_fw.bin",
+    "sha256": "abdcca4e8bf76ebfba23d433de310ffefebd0ff9d01990639d4cd9602b32b71a"
+  },
+  {
+    "path": "src/wifit3/chips/rtl8812au_dkms/assets/rtl8812au_fw.bin",
+    "sha256": "abdcca4e8bf76ebfba23d433de310ffefebd0ff9d01990639d4cd9602b32b71a"
+  },
+  {
+    "path": "src/wifit3/chips/rtl8814au_dkms/assets/rtl8814au_fw.bin",
+    "sha256": "aa6bf9d62b2d2d8a37254fd6d917ba2839888cdedc21850d4481874cb1d3d7cb"
+  },
+  {
+    "path": "src/wifit3/chips/rtl8821au/assets/rtw8821a_fw.bin",
+    "sha256": "4693ece655044d96f81bd3f3e8db14dc352b493219c4fd0a75788a6fbd9eac3c"
+  },
+  {
+    "path": "src/wifit3/chips/rtl8821au_dkms/assets/rtl8821au_fw.bin",
+    "sha256": "9fe1dc338df75253c434821033f66c32024da019e1fb64529e5b9bd1533e96db"
+  },
+  {
+    "path": "src/wifit3/chips/rtl8821cu_dkms/assets/rtl8821cu_fw_nic.bin",
+    "sha256": "e9f5168408b6ba80fd1ffa2450c82f694e50b8c741f640dbf5b9da8051e34665"
+  },
+  {
+    "path": "src/wifit3/chips/rtl8822bu/assets/rtw8822b_fw.bin",
+    "sha256": "dee2eae8080165da1fa6c8c6b1a944c378180a654c49e6bf71c7e33c8d5cf6f1"
+  },
+  {
+    "path": "src/wifit3/chips/rtl8822bu_dkms/assets/rtl8822bu_fw.bin",
+    "sha256": "a72da690597bfa99d8eb6fc2ab090d18d8ad92ac2befd35db1c9e3662d8d8418"
+  },
+  {
+    "path": "src/wifit3/chips/rtl8822cu/assets/rtl8822c_agc.bin",
+    "sha256": "250d1b0258f9db462f10c4ba4d03e20d3bb30c331a42d4ab7cc952ef1cf00d09"
+  },
+  {
+    "path": "src/wifit3/chips/rtl8822cu/assets/rtl8822c_bb.bin",
+    "sha256": "9a7fae42ec20ffd9321227cf52295c4621cb0b6f5bf428e747a2643b452832ed"
+  },
+  {
+    "path": "src/wifit3/chips/rtl8822cu/assets/rtl8822c_cal_init.bin",
+    "sha256": "f8874ceda6cc1b3ef755403efe4aeff15f09ede704b214dfb79c2977b66b0049"
+  },
+  {
+    "path": "src/wifit3/chips/rtl8822cu/assets/rtl8822c_fw_nic.bin",
+    "sha256": "87291ebb20f46c75b16bbab85572eb1d7487dc550814f5f4cba4e9f465a85b51"
+  },
+  {
+    "path": "src/wifit3/chips/rtl8822cu/assets/rtl8822c_rf_a.bin",
+    "sha256": "9f4f4b2ac23e6954b8913f5f4cda71ba83d51914465c6d2e5f61a8a9b88a1cb0"
+  },
+  {
+    "path": "src/wifit3/chips/rtl8822cu/assets/rtl8822c_rf_b.bin",
+    "sha256": "2ea57c77705ae67451e20ba15746b06c928a650caef5d24968f2394123e8a77a"
+  },
+  {
+    "path": "src/wifit3/chips/rtl8922au/assets/rtw8922a_fw-4.bin",
+    "sha256": "d11927f593c82879bd0437435475d7915a60932374747984b3dc906a23009dea"
+  },
+  {
+    "path": "src/wifit3/chips/rtw88_8814au/assets/rtw8814a_fw-linux_firmware.bin",
+    "sha256": "aa6bf9d62b2d2d8a37254fd6d917ba2839888cdedc21850d4481874cb1d3d7cb"
+  }
+]

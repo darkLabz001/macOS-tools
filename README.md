@@ -1,17 +1,59 @@
 # macOS-tools
 
-Clean source copies of **Outside In**, **Network Mapper**, **Packet Vault**, and **Wifit3**, with their shared optional Vault relay.
+Four macOS security and investigation tools, distributed as clean source copies.
 
-Download [macOS-tools-source.zip](macOS-tools-source.zip), extract it, and follow the included README. The package contains all four source directories, artwork, build scripts, tests, licenses, an inert configuration template and a privacy-audit script. It contains no Git metadata or original history.
+| Tool | Purpose |
+| --- | --- |
+| [Outside In](outside-in/) | Domain/IP reconnaissance, DNS, RDAP, certificate discovery, HTTPS/TLS observations, bounded TCP checks and an evidence graph. |
+| [Network Mapper](network-mapper/) | Native Nmap front end with manual scan controls, saved snapshots and comparisons. |
+| [Packet Vault](packet-vault/) | Local packet-capture inspection, Wi-Fi inventory and selected WPA/WPA2 wordlist checks. |
+| [Wifit3](wifit3/) | Customized upstream wireless-auditing TUI with manual start/stop controls. |
+
+Use these tools only on systems and captures you own or are authorized to assess.
+
+## Build
+
+Requires macOS 14+, Apple Command Line Tools, and Python 3.11+. Install Nmap, TShark/Wireshark, Aircrack-ng or a supported USB wireless adapter as needed by the individual tools. No dependencies or wordlists are bundled.
 
 ```sh
-unzip macOS-tools-source.zip
-cd macOS-tools
 zsh scripts/build-native.sh
+open "dist/Outside In.app"
+open "dist/Network Mapper.app"
+open "dist/Packet Vault.app"
 ```
 
-The audited source package is distributed as a ZIP because command-line Git access was unavailable in the publishing environment. SHA-256 verification is provided in [SHA256SUMS.txt](SHA256SUMS.txt).
+Apps are built locally and ad hoc signed; they are not notarized. The build writes only into this checkout. It does not replace installed apps or change Dock settings.
 
-Server sync is **disabled by default**. Supply your own HTTPS endpoint and credentials outside the checkout if you choose to enable it. No real credentials, personal paths, private server details, captures, logs, scan results, databases, wordlists or recovered passwords are included. Tests use synthetic fixtures. Firmware is downloaded separately with checksum verification.
+Run Wifit3 with [uv](https://docs.astral.sh/uv/):
 
-See [SANITIZATION.md](SANITIZATION.md) for the performed checks and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for upstream attribution. GPL-2.0-only, with separately licensed firmware notices retained in the source.
+```sh
+python3 scripts/fetch-firmware.py
+zsh wifit3/launch.command
+```
+
+## Optional server sync
+
+Server sync is disabled unless you explicitly configure it. This repository contains no server address or usable API key. An inert template is in [config/vault-config.example.json](config/vault-config.example.json).
+
+To opt in, create `~/Library/Application Support/macOS-tools/vault-config.json` outside the checkout, set your own HTTPS ingest endpoint and API key, and set `enabled` to `true`. Restrict its permissions to your account. See [the relay documentation](osint-vault-relay/README.md).
+
+Runtime data is kept under `~/Library/Application Support/macOS-tools/` or Wifit3's platform-specific user data directory. Existing installations' configuration, captures, histories and credentials are not included or migrated.
+
+## Privacy of this source distribution
+
+This is a new source tree with no imported Git history. It excludes API credentials, environment files, local server details, account information, real scan/capture results, recovered passwords, wordlists, logs, databases, caches, installed application bundles and Finder metadata backups. Examples use reserved documentation names and addresses. Tests generate their own synthetic data locally.
+
+Generated artwork has had PNG text/EXIF metadata removed. Firmware blobs are excluded; a checksum-verified download helper fetches the original upstream assets when requested. Vendor license notices are preserved. Windows driver-installation executables are excluded from this macOS collection.
+
+## Checks
+
+```sh
+zsh scripts/check.sh
+python3 scripts/audit-source.py
+```
+
+The audit rejects sensitive runtime files, machine-specific home paths, private/overlay IPv4 endpoints, common credential formats and image text metadata. It is a defense against accidental inclusion, not a guarantee that every possible secret format can be recognized. Never commit a real configuration or runtime data.
+
+## Attribution
+
+Wifit3 is derived from [derv82/wifit3](https://github.com/derv82/wifit3), v0.6.0, licensed GPL-2.0-only. Original copyright and firmware license notices remain in the source. See [THIRD_PARTY_NOTICES.md](docs/THIRD_PARTY_NOTICES.md). Other components in this collection are also provided under GPL-2.0-only.
